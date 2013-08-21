@@ -20,9 +20,6 @@ main();
 sub main {
 
   $config = LoadFile('config.yaml');
-  print "The API key is ".$config->{'api_key'}."\n";
-  print "The Redmine URL is ".$config->{'redmine_url'}."\n";
-
   my $projects_list_url = $config->{'redmine_url'}."/projects.json\n";
   my($projects_list) = &returnjson($projects_list_url);
 
@@ -108,7 +105,7 @@ sub each_member {
                 default {}
             }
             #print $member->{'roles'}[0]->{'name'}." ";
-            print $member->{'user'}->{'name'}."\n";
+            print '@' . $member->{'user'}->{'name'}."\n";
         }
     }
 }
