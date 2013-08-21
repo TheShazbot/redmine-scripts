@@ -12,7 +12,7 @@ my $sth = $dbh->prepare($sql);
 
 $sth->execute or die "SQL Error: $DBI::errstr\n";
 
-my $dir = dir("/tmp/keydir");
+my $dir = dir($ARGV[0]);
 
 while (my @row = $sth->fetchrow_array) {
   my $uid     = $row[1];
