@@ -25,6 +25,18 @@ The script will print to standard out (write to file coming soon)
     ./gitolite-remine.pl > gitolite.conf
 
 
+Example gitolite.conf file
+--------------------------
+
+    cat gitolite.conf
+
+    repo    gitolite-admin
+            RW+     =   gitolite@example.org
+
+            include "aliases.conf"
+            include "projects.conf"
+
+
 Tests
 =====
 
