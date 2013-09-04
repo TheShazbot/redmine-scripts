@@ -11,18 +11,20 @@ my $dbh = cat::db::connectToDb('gitolite');
 #my $sql_count = "select count(*) from keys where in_gitolite='false';";
 #my $sth_count = $dbh->prepare($sql_count);
 
-my $sql = "select * from keys";
+my $sql = 'select * from keys';
 my $sth = $dbh->prepare($sql);
 
 $sth->execute or die "SQL Error: $DBI::errstr\n";
 
-while (my @row = $sth->fetchrow_array) {
-  my $uid     = $row[1];
-  my $keydata = $row[2];
-  my $name    = $row[3];
-  print "\@$uid = $name\n";
-  # TODO:
-  # set in_gitolite='true'
-}
+while ( my $row = $sth->fetchrow_hashref )
+    {
+    my $uid  = $row->{'uid'};
+    my $name = $row->{'name'};
+
+    print "\@$uid = $name\n";
+
+    # TODO:
+    # set in_gitolite='true'
+    }
 
 $dbh->disconnect
