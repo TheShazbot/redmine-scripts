@@ -2,9 +2,18 @@
 api_key: 5029e19bced91284bcdefff3918405bcdef91830
 redmine_url: https://projects.yourdomain.com
 
-# postgres db
-host: db.example.org
-dbname: gitolite
-port: 5432
-username: gitolite
-password: changme!
+gitolite:
+  host: db.example.org
+  dbname: gitolite
+  port: 5432
+  username: gitolite
+  password: changme!
+  driver: Pg
+
+redmine:
+  host: db.example.org
+  dbname: redmine
+  port: 3306
+  username: redmine
+  password: changme!
+  driver: Mysql

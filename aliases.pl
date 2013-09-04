@@ -5,7 +5,7 @@ use cat::db;
 use strict;
 use warnings;
 
-my $dbh = cat::db::connectToDb();
+my $dbh = cat::db::connectToDb('gitolite');
 
 # TODO make it not run everytime
 #my $sql_count = "select count(*) from keys where in_gitolite='false';";

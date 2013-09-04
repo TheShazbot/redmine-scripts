@@ -6,7 +6,7 @@ use strict;
 use warnings;
 use Path::Class;
 
-my $dbh = cat::db::connectToDb();
+my $dbh = cat::db::connectToDb('gitolite');
 my $sql = "select * from keys";
 my $sth = $dbh->prepare($sql);
 
