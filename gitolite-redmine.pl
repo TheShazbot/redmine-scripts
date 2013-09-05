@@ -21,26 +21,67 @@ sub main
     {
 
     $config = LoadFile('config.yaml');
-    print 'The API key is ' . $config->{'api_key'} . "\n";
-    print 'The Redmine URL is ' . $config->{'redmine_url'} . "\n";
+    #print 'The API key is ' . $config->{'api_key'} . "\n";
+    #print 'The Redmine URL is ' . $config->{'redmine_url'} . "\n";
 
-    my $projects_list_url = $config->{'redmine_url'} . "/projects.json\n";
-    my ($projects_list) = returnjson($projects_list_url);
+    # Offset from the beginning
+    my $projoffset = 0;
 
-    foreach my $project ( @{ $projects_list->{'projects'} } )
-        {
-        print 'repo ' . $project->{'identifier'} . "\n";
-        my $prefix = '/projects/' . $project->{'id'};
-        my $members_list_url =
-            $config->{'redmine_url'} . "$prefix/memberships.json\n";
-        my ($members_list) = returnjson($members_list_url);
-        each_member( $members_list->{'memberships'} );
+    # how many results we will get each time through the loop
+    my $limit = 100;
 
-        #print Dumper $members_list;
-        #exit 0;
-        print "\n";
+    my $projects_list_url = $config->{'redmine_url'} . 'projects.json';
 
-        }
+    my $projtotal;
+    my $membertotal;
+
+
+    do
+	{
+	my $projects_list = returnjson($projects_list_url
+		. "?offset=$projoffset&limit=$limit");
+
+        $projtotal = $projects_list->{'total_count'};
+
+	#print Dumper $projects_list;
+
+	foreach my $project ( @{ $projects_list->{'projects'} } )
+	    {
+	    print 'repo ' . $project->{'identifier'} . "\n";
+
+	    my $prefix = 'projects/' . $project->{'id'};
+
+	    my $members_list_url =
+		$config->{'redmine_url'} . "$prefix/memberships.json";
+
+            my $memberoffset = 0;
+
+	    do
+		{
+		my $members_list = returnjson($members_list_url
+		    . "?offset=$memberoffset&limit=$limit" );
+
+		#print Dumper $members_list;
+
+		$membertotal = $members_list->{'total_count'};
+
+		each_member( $members_list->{'memberships'} );
+
+		$memberoffset = $memberoffset + $limit;
+		}
+	    while ($memberoffset <= $membertotal);
+
+	    print "\n";
+
+
+
+	    }
+
+	$projoffset = $projoffset + $limit;
+
+
+	}
+    while ($projoffset <= $projtotal);
 
     return(1);
     }
@@ -50,12 +91,10 @@ sub returnjson
     my ($request_url) = @_;
     my $curl = WWW::Curl::Easy->new;
 
-    #my $projects_list_url = $config->{'redmine_url'} . "/projects.json\n";
-    #print $projects_list_url;
 
     $curl->setopt( CURLOPT_HEADER,         0 );
     $curl->setopt( CURLOPT_SSL_VERIFYPEER, 0 );
-    $curl->setopt( CURLOPT_URL,            $request_url );
+    $curl->setopt( CURLOPT_URL,            $request_url . "\n");
 
     my @myheaders = ();
     $myheaders[0] = 'X-Redmine-API-Key: ' . $config->{'api_key'};
@@ -63,7 +102,9 @@ sub returnjson
 
     $curl->setopt( CURLOPT_HTTPHEADER, \@myheaders );
 
-# A filehandle, reference to a scalar or reference to a typeglob can be used here.
+    # A filehandle, reference to a scalar or reference to a typeglob
+    # can be used here.
+
     my $response_body;
     $curl->setopt( CURLOPT_WRITEDATA, \$response_body );
 
