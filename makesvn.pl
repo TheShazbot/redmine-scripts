@@ -15,7 +15,7 @@ use Data::Dumper;
 my $svnroot = '/tmp';
 
 my $dbh = cat::db::connectToDb('gitolite');
-my $sql = "select * from projects where status = 'pending' AND type = 'Repository::Subversion'";
+my $sql = "select * from projects where status = 'pending' AND type = 'Svn'";
 my $sth = $dbh->prepare($sql);
 
 $sth->execute or die "SQL Error: $DBI::errstr\n";
@@ -40,7 +40,7 @@ while ( my $row = $sth->fetchrow_hashref )
 
     }
 
-$sql = "select * from projects where status = 'deleting' AND type = 'Repository::Subversion'";
+$sql = "select * from projects where status = 'deleting' AND type = 'Svn'";
 $sth = $dbh->prepare($sql);
 
 $sth->execute or die "SQL Error: $DBI::errstr\n";
