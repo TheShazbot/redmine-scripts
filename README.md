@@ -6,12 +6,12 @@ Perl scripts to auto-create svn and gitolite repositories
 Dependencies
 ============
 
-Requires perl, WWW::Curl::Easy, YAML, JSON, Makefile.pl (or equivalent) coming soon
+Requires perl, libpath-class-perl, WWW::Curl::Easy, YAML, JSON, Makefile.pl (or equivalent) coming soon
 
 Ubuntu Precise
 --------------
 
-    sudo apt-get install libwww-curl-perl libyaml libjson-perl
+    sudo apt-get install libwww-curl-perl libyaml libjson-perl libpath-class-perl
 
 Usage
 =====

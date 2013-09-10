@@ -12,7 +12,10 @@ use cat::db;
 use Path::Class;
 use Data::Dumper;
 
-my $svnroot = '/tmp';
+use YAML qw(LoadFile);
+
+my $config = LoadFile('config.yaml');
+my $svnroot = $config->{'svn_root'};
 
 my $dbh = cat::db::connectToDb('gitolite');
 my $sql = "select * from projects where status = 'pending' AND type = 'Svn'";
