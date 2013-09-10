@@ -21,8 +21,6 @@ sub main
     {
 
     $config = LoadFile('config.yaml');
-    #print 'The API key is ' . $config->{'api_key'} . "\n";
-    #print 'The Redmine URL is ' . $config->{'redmine_url'} . "\n";
 
     # Offset from the beginning
     my $projoffset = 0;
@@ -37,50 +35,46 @@ sub main
 
 
     do
-	{
-	my $projects_list = returnjson($projects_list_url
-		. "?offset=$projoffset&limit=$limit");
+  {
+  my $projects_list = returnjson($projects_list_url
+    . "?offset=$projoffset&limit=$limit");
 
         $projtotal = $projects_list->{'total_count'};
 
-	#print Dumper $projects_list;
+  foreach my $project ( @{ $projects_list->{'projects'} } )
+      {
+      print 'repo ' . $project->{'identifier'} . "\n";
 
-	foreach my $project ( @{ $projects_list->{'projects'} } )
-	    {
-	    print 'repo ' . $project->{'identifier'} . "\n";
+      my $prefix = 'projects/' . $project->{'id'};
 
-	    my $prefix = 'projects/' . $project->{'id'};
-
-	    my $members_list_url =
-		$config->{'redmine_url'} . "$prefix/memberships.json";
+      my $members_list_url =
+    $config->{'redmine_url'} . "$prefix/memberships.json";
 
             my $memberoffset = 0;
 
-	    do
-		{
-		my $members_list = returnjson($members_list_url
-		    . "?offset=$memberoffset&limit=$limit" );
+      do
+    {
+    my $members_list = returnjson($members_list_url
+        . "?offset=$memberoffset&limit=$limit" );
 
-		#print Dumper $members_list;
+    $membertotal = $members_list->{'total_count'};
 
-		$membertotal = $members_list->{'total_count'};
+    each_member( $members_list->{'memberships'} );
 
-		each_member( $members_list->{'memberships'} );
+    $memberoffset = $memberoffset + $limit;
+    }
+      while ($memberoffset <= $membertotal);
 
-		$memberoffset = $memberoffset + $limit;
-		}
-	    while ($memberoffset <= $membertotal);
-
-	    print "\n";
+      print "\n";
 
 
 
-	    }
+      }
 
-	$projoffset = $projoffset + $limit;
+  $projoffset = $projoffset + $limit;
 
 
-	}
+  }
     while ($projoffset <= $projtotal);
 
     return(1);
@@ -176,11 +170,9 @@ sub each_member
                 }
             }
 
-            #print $member->{'roles'}[0]->{'name'} . ' ';
             print $member->{'user'}->{'name'} . "\n";
             }
         }
 
     return(1);
     }
-
