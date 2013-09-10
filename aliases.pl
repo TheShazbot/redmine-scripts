@@ -7,24 +7,29 @@ use warnings;
 
 my $dbh = cat::db::connectToDb('gitolite');
 
-# TODO make it not run everytime
-#my $sql_count = "select count(*) from keys where in_gitolite='false';";
-#my $sth_count = $dbh->prepare($sql_count);
+my $sql_count = "select count(*) from keys where state='pending';";
+my $sth_count = $dbh->prepare($sql_count);
+$sth_count->execute or die "SQL Error: $DBI::errstr\n";
+my $count_hash = $sth_count->fetchrow_hashref;
 
-my $sql = 'select * from keys';
-my $sth = $dbh->prepare($sql);
-
-$sth->execute or die "SQL Error: $DBI::errstr\n";
-
-while ( my $row = $sth->fetchrow_hashref )
+if ( $count_hash->{'count'} > 1 )
     {
-    my $uid  = $row->{'uid'};
-    my $name = $row->{'name'};
+    my $sql = 'select * from keys';
+    my $sth = $dbh->prepare($sql);
 
-    print "\@$uid = $name\n";
+    $sth->execute or die "SQL Error: $DBI::errstr\n";
 
-    # TODO:
-    # set in_gitolite='true'
+    while ( my $row = $sth->fetchrow_hashref )
+        {
+        my $uid  = $row->{'uid'};
+        my $name = $row->{'name'};
+
+        print "\@$uid = $name\n";
+
+        # TODO:
+        # set in_gitolite='true'
+        }
     }
 
+$sth_count->fetchrow_hashref;
 $dbh->disconnect
