@@ -26,8 +26,6 @@ if ( $count_hash->{'count'} > 1 )
 
         print "\@$uid = $name\n";
 
-        # TODO:
-        # set in_gitolite='true'
         }
     }
 
