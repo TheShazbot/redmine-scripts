@@ -35,14 +35,41 @@ sub associateRepository {
   my $repotype   = repoToRedmine($type);
   my $url        = repopath($repotype, $identifier);
   my $root_url   = repopath($repotype, $identifier);
-  my $update_sql = "insert into repositories (url, root_url, type, project_id, identifier) VALUES (?, ?, ?, ?, ?)";
-  if (defined $projectId) {
-    print "Associated project $identifier to repo\n";
-    my $update_stmt = $dbh_redmine->prepare($update_sql);
-    $update_stmt->execute($url, $root_url, $repotype, $projectId, $identifier) or die "SQL Error: $DBI::errstr\n";
+
+  if ( checkRepo($projectId, $identifier) == 0 )
+  {
+    my $update_sql = "insert into repositories (url, root_url, type, project_id, identifier) VALUES (?, ?, ?, ?, ?)";
+    if (defined $projectId) {
+      print "Associated project $identifier to repo\n";
+      my $update_stmt = $dbh_redmine->prepare($update_sql);
+      $update_stmt->execute($url, $root_url, $repotype, $projectId, $identifier) or die "SQL Error: $DBI::errstr\n";
+    }
+    else {
+      print "WARNING: Null value $identifier\n";
+    }
+  }
+  else
+  {
+    print "Already done $identifier \n";
+  }
+
+}
+
+sub checkRepo {
+  my ($projectId, $identifier) = @_;
+  my $dbh = cat::db::connectToDb('redmine');
+  my $sql = 'select count(*) as count from repositories where project_id=? and identifier=?';
+  my $sth = $dbh->prepare($sql);
+  $sth->execute($projectId,$identifier) or die "SQL Error: $DBI::errstr\n";
+  my $count = $sth->fetchrow_hashref;
+  $sth->finish;
+  $dbh->disconnect;
+
+  if ( $count->{'count'} > 0 ) {
+    return 1;
   }
   else {
-    print "Null value $identifier\n";
+    return 0;
   }
 }
 
