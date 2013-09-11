@@ -4,14 +4,15 @@ use strict;
 use warnings;
 
 use cat::db;
+use cat::log;
 
 use YAML qw(LoadFile);
 use feature qw( switch );
 
 
 my $config = LoadFile('config.yaml');
-my $dbh = cat::db::connectToDb('gitolite');
-my $dbh_redmine = cat::db::connectToDb('redmine');
+my $dbh = connectToDb('gitolite');
+my $dbh_redmine = connectToDb('redmine');
 
 my $sql = "select * from projects where status='pending' and type != 'none'";
 my $sth = $dbh->prepare($sql);
@@ -25,8 +26,6 @@ while ( my $row = $sth->fetchrow_hashref )
 
 $dbh->disconnect;
 
-
-# TODO: Add logging
 sub associateRepository {
   my ($row) = @_;
   my $identifier = $row->{'identifier'};
@@ -40,24 +39,24 @@ sub associateRepository {
   {
     my $update_sql = "insert into repositories (url, root_url, type, project_id, identifier) VALUES (?, ?, ?, ?, ?)";
     if (defined $projectId) {
-      print "Associated project $identifier to repo\n";
       my $update_stmt = $dbh_redmine->prepare($update_sql);
       $update_stmt->execute($url, $root_url, $repotype, $projectId, $identifier) or die "SQL Error: $DBI::errstr\n";
+      log('associateRepository()', "Associated project $identifier to repo");
     }
     else {
-      print "WARNING: Null value $identifier\n";
+      errorlog('associateRepository()', "WARNING: Null value $identifier");
     }
   }
   else
   {
-    print "Already done $identifier \n";
+    # nothing to do
   }
 
 }
 
 sub checkRepo {
   my ($projectId, $identifier) = @_;
-  my $dbh = cat::db::connectToDb('redmine');
+  my $dbh = connectToDb('redmine');
   my $sql = 'select count(*) as count from repositories where project_id=? and identifier=?';
   my $sth = $dbh->prepare($sql);
   $sth->execute($projectId,$identifier) or die "SQL Error: $DBI::errstr\n";
@@ -76,7 +75,7 @@ sub checkRepo {
 sub getProjectId {
   my ($identifier) = @_;
 
-  my $dbh = cat::db::connectToDb('redmine');
+  my $dbh = connectToDb('redmine');
   my $sql = 'select id from projects where identifier=? and id is not null';
   my $sth = $dbh->prepare($sql);
   $sth->execute($identifier) or die "SQL Error: $DBI::errstr\n";
@@ -98,6 +97,7 @@ sub repoToRedmine {
       return 'Repository::Git';
     }
     default {
+      errorlog('repoToRedmine()', "Unsupported type $type");
       die "Unsupported type $type in repo_to_redmine function";
     }
   }
@@ -114,6 +114,7 @@ sub repopath {
       return $config->{'git_root'} . "$identifier.git";
     }
     default {
+      errorlog('repopath()', "Unsupported type $repotype");
       die "Unsupported type $repotype in repopath function";
     }
   }
