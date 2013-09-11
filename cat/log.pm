@@ -11,6 +11,7 @@ use Date::Format;
 
 use cat::db;
 
+our (@EXPORT) = qw( 'log' 'errorlog' );
 our (@EXPORT_OK) = qw( 'log' 'errorlog' );
 
 sub errorlog 

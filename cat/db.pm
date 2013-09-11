@@ -8,6 +8,7 @@ use YAML qw(LoadFile);
 use Exporter;
 use base qw(Exporter);
 
+our (@EXPORT) = qw( 'connectToDb' );
 our (@EXPORT_OK) = qw( 'connectToDb' );
 
 sub connectToDb {
