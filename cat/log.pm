@@ -25,7 +25,7 @@ sub errorlog
 
     if ( open($fh, '>>', $logfile) )
 	{
-	printf("%s %10s %s\n",
+	printf($fh "%s %10s %s\n",
 	    time2str( '%Y-%m-%d %H:%M', time() ), $source, $message);
 	}
     else
@@ -45,7 +45,7 @@ sub log
 
     if ( open($fh, '>>', $logfile) )
 	{
-	printf("%s %10s %s\n",
+	printf($fh "%s %10s %s\n",
 	    time2str( '%Y-%m-%d %H:%M', time() ), $source, $message);
 	}
     else
