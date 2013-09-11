@@ -7,6 +7,7 @@ use DBI;
 use YAML qw(LoadFile);
 use Exporter;
 use base qw(Exporter);
+use Date::Format;
 
 use cat::db;
 
