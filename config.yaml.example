@@ -1,6 +1,8 @@
 # redmine api
 api_key: 5029e19bced91284bcdefff3918405bcdef91830
 redmine_url: https://projects.yourdomain.com
+logfile: /tmp/log
+errorlog: /tmp/log2
 
 gitolite:
   host: db.example.org
